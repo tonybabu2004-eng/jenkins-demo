@@ -36,5 +36,11 @@ sudo systemctl enable jenkins
 
 sudo systemctl start jenkins
 
+######
+
+sudo mount -o remount,size=2G /tmp
+vim /etc/fstab
+tmpfs /tmp tmpfs defaults,noatime,mode=1777,size=2G 0 0
+
 
 
