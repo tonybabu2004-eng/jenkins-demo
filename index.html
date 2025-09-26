@@ -18,7 +18,7 @@ sudo wget -O /etc/yum.repos.d/jenkins.repo \
 
  sudo systemctl start jenkins
 
-
+yum install maven -y
  ########or in case failure ##########
 
 yum update -y
@@ -36,6 +36,7 @@ sudo systemctl enable jenkins
 
 sudo systemctl start jenkins
 
+yum install maven -y
 ######
 
 sudo mount -o remount,size=2G /tmp
@@ -43,6 +44,33 @@ vim /etc/fstab
 tmpfs /tmp tmpfs defaults,noatime,mode=1777,size=2G 0 0
 systemctl daemon-reload
 reboot
+
+####tomcat download#####
+
+wget https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.109/bin/apache-tomcat-9.0.109.tar.gz
+tar -xzvf tomcate tar file
+yum install java* -y
+yum install maven -y
+
+tomcat-users.xml:
+
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<role rolename="manager-jmr"/>
+<user username="admin" password="admin" roles="manager-gui, manager-script, manager-jmr"/>
+<user username="deployer" password="deployer" roles="manager-script"/>
+<user username="tomcat" password="s3cret" roles="manager-gui"/>
+
+find -name context.xml
+
+
+    #####
+plugins to download:
+
+deploy war
+maven integration
+github integration
+
 
 
 
