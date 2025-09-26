@@ -1,5 +1,37 @@
-hi this jenkins new demo
+#########jenkins download#########
+sudo yum update –y
 
-new commit
+sudo wget -O /etc/yum.repos.d/jenkins.repo \
+    https://pkg.jenkins.io/redhat-stable/jenkins.repo
 
-jenkins ci cd
+ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+ sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+ sudo yum upgrade
+
+ sudo yum install java-21-amazon-corretto -y
+
+ sudo yum install jenkins -y
+
+ sudo systemctl enable jenkins
+
+ sudo systemctl start jenkins
+
+
+ ########or in case failure ##########
+
+yum update -y
+
+dnf install java-17-amazon-coretto -y
+
+sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins-repo
+
+rpm --import https:pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+
+sudo yum install jenkins -y *
+sudo yum install jenkins -y
+
+sudo systemctl enable jenkins
+
+sudo systemctl start jenkins
