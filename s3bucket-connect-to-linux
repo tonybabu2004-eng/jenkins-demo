@@ -1,0 +1,28 @@
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+unzip awscliv2.zip
+
+sudo ./aws/install
+
+ aws --version
+
+aws configure // after this give access and secret key and region give ur instance region
+
+sudo yum install automake fuse fuse-devel gcc-c++ git libcurl-devel libxml2-devel make openssl-devel
+
+git clone https://github.com/s3fs-fuse/s3fs-fuse.git
+
+cd s3fs-fuse
+./autogen.sh
+./configure --prefix=/usr --with-openssl
+make
+sudo make install
+cd
+which s3fs
+touch /etc/passwd-s3fs
+chmod 640 /etc/passwd-s3fs
+vim /etc/passwd-s3fs // here paste access secret:secret key . semicolon imp
+s3fs giveurbucketnamehere /mnt -o passwd_file=/etc/passwd-s3fs //ur bucket name should be mentioned
+df -h
+cd /mnt
+ll
