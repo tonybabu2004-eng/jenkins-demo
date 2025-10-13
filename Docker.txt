@@ -100,7 +100,7 @@ docker export -o <file>.tar <container> // Exports container’s filesystem as t
 docker import <file>.tar // Creates image from tar archive.
 
 docker run -d nginx // Run in detached (background) mode
-docker run -p 8080:80 nginx // Map port host:container
+docker run -p 8080:80 nginx // Map port host:container NOTE:- we cannot add port mapping or forwarding on a running container so we have create a new container.
 docker run -v myvol:/data nginx // Mount volume, generally container data is temporary if container is deleted then data is also gone, so to make it store permanently we use this command
 
 docker run --name web nginx // Assign custom container name
@@ -146,3 +146,4 @@ ENV <name> <value> - this instruction sets an environment variable that a runnin
 EXPOSE <port-number> - this instruction sets configuration on the image that indicates a port the image would like to expose.
 USER <user-or-uid> - this instruction sets the default user for all subsequent instructions.
 CMD ["<command>", "<arg1>"] - this instruction sets the default command a container using this image will run. It runs command when container starts
+
