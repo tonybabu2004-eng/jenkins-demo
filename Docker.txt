@@ -1,0 +1,148 @@
+Docker:-
+
+-> Docker is a platform used to build, run, and manage applications inside containers.
+
+Image:-
+
+A container image is a standardized package that includes all of the files, binaries, libraries, and configurations to run a container.
+
+- Images are immutable. Once an image is created, it can't be modified. You can only make a new image or add changes on top of it.
+
+- Container images are composed of layers. Each layer represents a set of file system changes that add, remove, or modify files.
+EG:-
+FROM ubuntu:22.04        # creates base-image layers (ubuntu files)
+RUN apt-get update && apt-get install -y python3   # one layer
+COPY app/ /app           # another layer (copies your app files)
+RUN pip install -r /app/requirements.txt  # another layer
+CMD ["python3", "/app/main.py"]
+
+Container:-
+
+A container is a lightweight, portable, and isolated environment that runs your application with everything it needs — code, libraries, dependencies, runtime — all bundled together. We can also say running instance of Image.
+
+- Each container is independently managed. Deleting one container won't affect any others.
+
+- A container is called lightweight because it uses very few system resources (CPU, memory, disk) compared to a virtual machine (VM) — because it shares the host operating system kernel instead of running its own full OS.
+
+Docker Engine:- Docker Engine is the entire platform that lets you build, run, and manage containers.
+It contains 3 components
+
+- Docker Daemon(dockerd): The background service that manages images, containers, networks, volumes — the brain of Docker.
+
+- Docker CLI(docker): The tool you use in terminal (e.g., docker run, docker build) to talk to the daemon.
+
+- Docker Runtime: A container runtime is the low-level software responsible for:
+
+Starting and stopping containers. Managing container namespaces and cgroups (for isolation). Setting up container filesystems. Running the actual container processes.
+
+Network:-
+
+-> Docker provides a virtual network layer between containers and the host — just like your home Wi-Fi connects multiple devices together.
+
+Bridge(default): Each container gets a private IP inside Docker’s virtual network. Containers can talk to each other using this network name.
+
+- Containers on a bridge network can reach the internet through NAT (Network Address Translation) — just like your laptop behind a Wi-Fi router.
+
+When a container uses the host network, it shares the host machine’s network stack.
+That means:
+
+Host Network:- The container does not get its own IP address. It uses the host’s IP address and ports directly.
+So, it’s faster (no network translation like bridge mode) but offers less isolation, because: Any port opened in the container is opened on the host. Both share the same network namespace.
+
+docker run -d --network host nginx
+
+None network:- When you use the none network, the container has no network access at all.
+It’s completely isolated from all networks: No internet. No communication with other containers.
+
+docker run -it --network none ubuntu
+
+Overlays Network:- Used mainly in Docker Swarm or multi-host setups.
+An overlay network allows containers on different Docker hosts (different machines) to communicate with each other as if they were on the same network. It sits on top of (overlays) existing host networks — hence the name.
+
+docker network create -d overlay my-overlay
+docker service create --name webapp --network my-overlay nginx
+
+-> Volumes store in host, /var/lib/docker/volumes/
+
+-> Registry contains the repositories and repository contains the images.
+
+COMMANDS:- 
+
+docker --version
+docker info // Displays system-wide information about Docker — containers, images, storage driver, etc.
+docker help or docker [command] --help eg:- docker run --help
+docker login // logs in to docker hub and if you want another registry type it after login
+
+docker images //list out all images
+docker pull <image>[:tag] eg:- docker pull nginx:latest //downloads the image from docker hub
+docker rmi <image-id or name> // deletes image locally
+docker push <repo>/<name>:<tag> // pushes the image to docker hub
+docker build -t <name>:<tag> <path> // builds an image from dockerfile in given path
+docker inspect <image> // displays detailed JSON info about the image
+
+
+docker ps // list of running containers
+docker ps -a // list of running and stopped containers
+docker run [options] <image> // creates and run new container from image
+docker start <container> // starts a stopped container
+docker stop <container> // stops a running container
+docker rm <container> // removes a stopped container
+docker rename <old> <new> // renames the container
+docker logs [options] <container> // shows container logs
+docker exec -it <container> <command> // run command in your container, it will create a new process
+docker attach <container> // connects your terminal to container( it attaches directly to main process)
+docker cp <src> <container>:<dest> // copys a file from host to container
+docker inspect <container> // detailed info about container
+
+-> To exit from container process without stopping the container press 'ctr+p and ctr+q'
+
+docker export -o <file>.tar <container> // Exports container’s filesystem as tar archive.
+docker import <file>.tar // Creates image from tar archive.
+
+docker run -d nginx // Run in detached (background) mode
+docker run -p 8080:80 nginx // Map port host:container
+docker run -v myvol:/data nginx // Mount volume, generally container data is temporary if container is deleted then data is also gone, so to make it store permanently we use this command
+
+docker run --name web nginx // Assign custom container name
+docker run -it ubuntu bash // Interactive terminal
+docker run -e ENV=prod myapp //Set environment variable
+docker run --network mynet nginx // Attach to specific network
+
+docker [volume or network] ls
+docker [volume or network] create <name>
+docker [volume or network] inspect <name>
+docker [volume or network] rm <name>
+
+docker commit [OPTIONS] <CONTAINER ID or NAME> [REPOSITORY[:TAG]] //turns a container (mutable) into a new image (immutable). Reused to run new containers with the same changes you made.
+
+
+
+DockerFile:-A Dockerfile is a text-based document that's used to create a container image. It provides instructions to the image builder on the commands to run, files to copy, startup command, and more.
+
+Eg:-
+FROM python:3.13
+WORKDIR /usr/local/app
+
+# Install the application dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy in the source code
+COPY src ./src
+EXPOSE 8080
+
+# Setup an app user so the container doesn't run as the root user
+RUN useradd app
+USER app
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+
+
+FROM <image> - this specifies the base image that the build will extend. It should be starting of dockerfile
+WORKDIR <path> - this instruction specifies the "working directory" or the path in the image where files will be copied and commands will be executed.
+COPY <host-path> <image-path> - this instruction tells the builder to copy files from the host and put them into the container image.
+RUN <command> - this instruction tells the builder to run the specified command. It runs on build time
+ENV <name> <value> - this instruction sets an environment variable that a running container will use.
+EXPOSE <port-number> - this instruction sets configuration on the image that indicates a port the image would like to expose.
+USER <user-or-uid> - this instruction sets the default user for all subsequent instructions.
+CMD ["<command>", "<arg1>"] - this instruction sets the default command a container using this image will run. It runs command when container starts
