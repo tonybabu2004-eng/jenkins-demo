@@ -88,6 +88,7 @@ docker start <container> // starts a stopped container
 docker stop <container> // stops a running container
 docker rm <container> // removes a stopped container
 docker rename <old> <new> // renames the container
+docker tag <image name or id> <my_image_name>:<tag> // changing name of a image
 docker logs [options] <container> // shows container logs
 docker exec -it <container> <command> // run command in your container, it will create a new process
 docker attach <container> // connects your terminal to container( it attaches directly to main process)
@@ -146,4 +147,5 @@ ENV <name> <value> - this instruction sets an environment variable that a runnin
 EXPOSE <port-number> - this instruction sets configuration on the image that indicates a port the image would like to expose.
 USER <user-or-uid> - this instruction sets the default user for all subsequent instructions.
 CMD ["<command>", "<arg1>"] - this instruction sets the default command a container using this image will run. It runs command when container starts
+
 
