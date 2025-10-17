@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+    environment {
+        TOMCAT_USER = 'deployer'
+        TOMCAT_PASS = 'deployer'
+        TOMCAT_HOST = '18.204.219.169'
+        TOMCAT_PORT = '8080'
+    }
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/tonybabu2004-eng/java-project.git'
+            }
+        }
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Deploy to Tomcat') {
+            steps {
+                sh '''
+                    curl -u $TOMCAT_USER:$TOMCAT_PASS \
+                    --upload-file webapp/target/webapp.war \
+                    "http://$TOMCAT_HOST:$TOMCAT_PORT/manager/text/deploy?path=/webapp&update=true"
+                '''
+            }
+        }
+        stage('Deploy to Docker Host') {
+            steps {
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'docker', 
+                        transfers: [
+                            sshTransfer(
+                                sourceFiles: '**/*',
+                                removePrefix: '',
+                                remoteDirectory: 'images',
+                                execCommand: '''
+                                    cd images
+                                    aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/m2r5y6g7
+                                    docker build -t devops .
+                                    docker tag devops:latest public.ecr.aws/m2r5y6g7/devops:latest
+                                    docker push public.ecr.aws/m2r5y6g7/devops:latest
+                                '''
+                            )
+                        ]
+                    )
+                ])
+            }
+        }
+       stage('Deploy to EKS') {
+    steps {
+        sshPublisher(publishers: [
+            sshPublisherDesc(
+                configName: 'eks-node',
+                transfers: [
+                    sshTransfer(
+                        sourceFiles: 'java-deployment.yaml,java-service.yaml',
+                        remoteDirectory: '', // adjust as needed
+                        removePrefix: '',
+                        execCommand: '''
+                            set -ex
+                            aws eks update-kubeconfig --region us-east-1 --name devops
+                            kubectl delete -f java-deployment.yaml
+                            kubectl apply -f java-deployment.yaml
+                            kubectl apply -f java-service.yaml
+                            kubectl rollout status deployment/java-deployment
+                        '''
+                    )
+                ],
+                usePromotionTimestamp: false,
+                verbose: true
+            )
+        ])
+    }
+}
+    }
+    post {
+        success {
+            junit '**/target/surefire-reports/TEST-*.xml'
+            archiveArtifacts artifacts: '**/target/*.war', fingerprint: true
+        }
+    }
+}
