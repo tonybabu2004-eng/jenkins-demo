@@ -1,6 +1,13 @@
 docker pull nginx
 docker run -it --name nginx-app -p 8080:80 nginx:latest /bin/bash
 
+cd /usr/share/nginx/html
+echo "tony" > index.html
+serivce nginx start
+
+
+
+----------------------
 apk update
 apk add apache2
 
