@@ -1,0 +1,16 @@
+docker pull nginx
+docker run -it --name nginx-app -p 8080:80 nginx:latest /bin/bash
+
+apk update
+apk add apache2
+
+for debian based
+
+apt update
+apt install apache2 -y
+
+httpd -k start
+
+for debian or ubuntu
+
+service apache2 start
